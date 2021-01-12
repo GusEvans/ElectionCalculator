@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Election Calculator</title>
+	<style> * {font-family:sans-serif;} </style>
+</head>
+<body>
+<h1>Election Calculator</h1>
+<h2>Step 1: Import Data</h2>
+<p>A simple example is already loaded. The names of candidates are listed at the top, and
+the votes are listed below, with a separator of "~~~" between the sections. Each vote 
+lists a preference for each candidate. "1" is the first preference, "2" is the second
+preference, and so on. "0" indicates the lack of a preference. Make sure every vote has
+a number for all the candidates. Edit the candidates and votes as necessary, and press the
+"Import Data" button to confirm before continuing.</p>
+<textarea id="data" name="data" rows="13" cols="30">
+Dog
+Cat
+Fish
+Mouse
+~~~
+1,2,3,4
+1,3,2,4
+4,1,2,3
+4,3,1,2
+2,1,4,3
+4,3,2,1
+1,4,2,3</textarea>
+<br>
+<button type="button" id="process">Import Data</button>
+<h2>Step 2: Select Voting System</h2>
+<select name="method" id="method">
+	<option value="fptp">First-past-the-post</option>
+	<option value="top2">Two-round runoff</option>
+	<option value="irv">Instant-runoff</option>
+</select>
+<button type="button" id="calculate">Calculate results</button>
+<h2>Results</h2>
+<p id="winners"></p>
+<script src="./election.js"></script>
+</body>
+<html>
