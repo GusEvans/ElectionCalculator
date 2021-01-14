@@ -57,6 +57,9 @@ function calculate() {
 	if (method == "irv") {
 		irv();
 	}
+	if (method == "bucklin") {
+		bucklin();
+	}
 	/* Display the results of the election */
 	if (winners.length == 1) {
 		document.getElementById("winners").innerHTML = candidates[winners] + " wins the election!"
@@ -230,6 +233,56 @@ function irv() {
 			majorityCheck();
 			if (round > 100) {
 				break;//This is to stop the page from breaking due to bad data
+			}
+		}
+	}
+	console.log(winners);
+	console.log(tally);
+}
+
+function bucklin() {
+	console.log("Bucklin voting election");
+	initializeTally(0);
+	/* Calculate first preferences */
+	firstRound();
+	console.log(topPreference);
+	/* Check for majority victory */
+	majorityCheck();
+	/* If a candidate has over half the votes, the election is over. Otherwise... */
+	if (winners.length == 0) {
+		tempThreshold = 0;
+		while (tempThreshold < 1) {
+			/* The main loop, repeating until someone has more than 50% of the votes. */
+			round += 1;
+			initializeTally(round);
+			tally[round] = tally[round - 1].slice();
+			/* Add all of the next preferences to the existing vote counts */
+			for (i = 0; i < votes.length; i+=1) {
+				for (j = 0; j < candidates.length; j+=1) {
+					if (votes[i][j] == round + 1) {
+						tally[round][j] += 1;
+					}
+				}
+			}
+			/* Check if anyone has at least half of the starting vote count */
+			for (i = 0; i < candidates.length; i+=1) {
+				if (tally[round][i] >= votes.length / 2) {
+					tempThreshold = 1;
+				}
+			}
+			console.log(tally[round]);
+		}
+		/* Calculate actual winner(s) */
+		console.log("Majority detected");
+		threshold = 0;
+		for (i = 0; i < candidates.length; i+=1) {
+			if (tally[round][i] == threshold) {
+				winners[winners.length] = i;
+			}
+			if (tally[round][i] > threshold) {
+				threshold = tally[round][i]
+				winners = [];
+				winners[0] = i;
 			}
 		}
 	}
