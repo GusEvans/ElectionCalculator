@@ -2,21 +2,21 @@
 
 /* Setup */
 
-var input;
-var method;
-var round;
-var threshold;
-var winnerString;
-var tempThreshold;
-var preference;
+var input; //This is the input from the text box
+var method; //This is the voting system specified in the drop-down
+var round; //This is used to count the current round of the election
+var threshold; //This is used to check whether a candidate's vote count has exceeded a known threshold (usually half)
+var tempThreshold; //This is a changeable threshold value, used when the threshold is unknown
+var preference; //This is used to store a voter's current preference
+var winnerString; //This is used to display the output
 
-var sections = [];
-var candidates = [];
-var votes = [];
-var tally = [];
-var winners = [];
-var tempWinners = [];
-var topPreference = [];
+var sections = []; //This array is used to split the input data
+var candidates = []; //This array stores the names and numbers of candidates
+var votes = []; //This array stores the votes as they appear in the ballots
+var tally = []; //This array stores the points for each candidate for each round of the election
+var winners = []; //This array stores the candidates that have won
+var tempWinners = []; //This array stores which candidates advance to a later stage of the election
+var topPreference = []; //This array is used for distributing votes correctly in IRV
 
 var i;
 var j;
@@ -59,6 +59,9 @@ function calculate() {
 	}
 	if (method == "bucklin") {
 		bucklin();
+	}
+	if (method == "borda") {
+		borda();
 	}
 	/* Display the results of the election */
 	if (winners.length == 1) {
@@ -216,10 +219,16 @@ function irv() {
 			for (i = 0; i < votes.length; i+=1) {
 				if (tempWinners[topPreference[i]] == 0) {
 					console.log("Vote " + i + " is being distributed!");
-					/* Find next preference */
-					preference = candidates.length + 1;
+					/* Find the next best valid preference */
+					tempThreshold = candidates.length + 1;
 					for (j = 0; j < candidates.length; j+=1) {
-						if (votes[i][j] < preference && votes[i][j] !== 0 && tempWinners[j] == 1) {
+						if (votes[i][j] < tempThreshold && votes[i][j] !== 0 && tempWinners[j] == 1) {
+							tempThreshold = votes[i][j];
+						}
+					}
+					console.log(tempThreshold); //This is the best PREFERENCE number, NOT the best CANDIDATE number
+					for (j = 0; j < candidates.length; j+=1) {
+						if (votes[i][j] == tempThreshold) {
 							/* Distribute the vote */
 							tally[round][j] += 1;
 							tally[round][topPreference[i]] -= 1;
@@ -232,7 +241,7 @@ function irv() {
 			/* Check for majority */
 			majorityCheck();
 			if (round > 100) {
-				break;//This is to stop the page from breaking due to bad data
+				break; //This is to stop the page from breaking in case something goes wrong
 			}
 		}
 	}
@@ -271,6 +280,9 @@ function bucklin() {
 				}
 			}
 			console.log(tally[round]);
+			if (round > 100) {
+				break; //This is to stop the page from breaking in case something goes wrong
+			}
 		}
 		/* Calculate actual winner(s) */
 		console.log("Majority detected");
@@ -288,6 +300,31 @@ function bucklin() {
 	}
 	console.log(winners);
 	console.log(tally);
+}
+
+function borda() {
+	console.log("Borda count election");
+	initializeTally(0);
+	/* Go through each vote and candidate, adding points to the tally */
+	for (i = 0; i < votes.length; i+=1) {
+		for (j = 0; j < candidates.length; j+=1) {
+			tally[0][j] += candidates.length + 1 - votes[i][j];
+		}
+	}
+	console.log(tally[0]);
+	/* Find the winner(s) */
+	threshold = 0;
+	for (i = 0; i < candidates.length; i+=1) {
+		if (tally[0][i] == threshold) {
+			winners[winners.length] = i;
+		}
+		if (tally[0][i] > threshold) {
+			threshold = tally[0][i]
+			winners = [];
+			winners[0] = i;
+		}
+	}
+	console.log(winners);
 }
 
 /* Small Functions */
