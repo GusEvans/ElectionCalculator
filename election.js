@@ -9,6 +9,7 @@ var threshold; //This is used to check whether a candidate's vote count has exce
 var tempThreshold; //This is a changeable threshold value, used when the threshold is unknown
 var preference; //This is used to store a voter's current preference
 var winnerString; //This is used to display the output
+var intendedWinners; //This is used to store the number of winners a voting system should produce
 
 var sections = []; //This array is used to split the input data
 var candidates = []; //This array stores the names and numbers of candidates
@@ -21,7 +22,7 @@ var topPreference = []; //This array is used for distributing votes correctly in
 var i;
 var j;
 
-document.getElementById("winners").innerHTML = "Results will appear here."
+document.getElementById("winners").innerText = "Results will appear here."
 
 /* Button Functions */
 
@@ -63,19 +64,32 @@ function calculate() {
 	if (method == "borda") {
 		borda();
 	}
+	if (method == "sntv") {
+		sntv(3);
+	}
+	if (method == "mntv") {
+		mntv(3);
+	}
 	/* Display the results of the election */
 	if (winners.length == 1) {
-		document.getElementById("winners").innerHTML = candidates[winners] + " wins the election!"
+		document.getElementById("winners").innerText = candidates[winners] + " wins the election!";
 	}
 	if (winners.length < 1) {
-		document.getElementById("winners").innerHTML = "A winner could not be calculated. Make sure all votes are inputted correctly, and then press \"Import Data\" again."
+		document.getElementById("winners").innerText = "A winner could not be calculated. Make sure all votes are inputted correctly, and then press \"Import Data\" again.";
 	}
-	if (winners.length > 1) {
+	if (winners.length > 1 && winners.length !== intendedWinners) {
 		winnerString = candidates[winners[0]];
 		for (i = 1; i < winners.length; i+=1) {
 			winnerString = winnerString + " and " + candidates[winners[i]];
 		}
-		document.getElementById("winners").innerHTML = "Tie between " + winnerString
+		document.getElementById("winners").innerText = "Tie between " + winnerString;
+	}
+	if (winners.length > 1 && winners.length == intendedWinners) {
+		winnerString = candidates[winners[0]];
+		for (i = 1; i < winners.length; i+=1) {
+			winnerString = winnerString + " and " + candidates[winners[i]];
+		}
+		document.getElementById("winners").innerText = winnerString + " win the election!";
 	}
 	console.log("Winner(s): Candidate " + winners);
 }
@@ -84,6 +98,7 @@ function calculate() {
 
 function fptp() {
 	console.log("First-past-the-post election");
+	intendedWinners = 1;
 	initializeTally(0);
 	/* Calculate results for each candidate */
 	firstRound();
@@ -103,6 +118,7 @@ function fptp() {
 
 function top2() {
 	console.log("2-round runoff election");
+	intendedWinners = 1;
 	initializeTally(0);
 	/* Calculate first preferences */
 	firstRound();
@@ -179,6 +195,7 @@ function top2() {
 
 function irv() {
 	console.log("Instant-runoff election");
+	intendedWinners = 1;
 	initializeTally(0);
 	/* Calculate first preferences */
 	firstRound();
@@ -251,6 +268,7 @@ function irv() {
 
 function bucklin() {
 	console.log("Bucklin voting election");
+	intendedWinners = 1;
 	initializeTally(0);
 	/* Calculate first preferences */
 	firstRound();
@@ -304,6 +322,7 @@ function bucklin() {
 
 function borda() {
 	console.log("Borda count election");
+	intendedWinners = 1;
 	initializeTally(0);
 	/* Go through each vote and candidate, adding points to the tally */
 	for (i = 0; i < votes.length; i+=1) {
@@ -323,6 +342,64 @@ function borda() {
 			winners = [];
 			winners[0] = i;
 		}
+	}
+	console.log(winners);
+}
+
+function sntv(places) {
+	console.log("Single non-transferable vote election");
+	intendedWinners = places;
+	initializeTally(0);
+	/* Calculate results for each candidate */
+	firstRound();
+	/* Find the winners */
+	tempWinners = [];
+	for (i = 0; i < candidates.length; i+=1) {
+		tempWinners[i] = 0;
+	}
+	for (i = 0; i < places; i+=1) {
+		tempThreshold = 0; //Note: This system currently cannot handle ties for the last winning place; that should be fixed
+		for (j = 0; j < candidates.length; j+=1) {
+			if (tally[round][j] > tempThreshold && tempWinners[j] !== 1) {
+				winners[i] = j;
+				tempThreshold = tally[round][j];
+			}
+		}
+		tempWinners[winners[i]] = 1;
+		console.log(tempWinners);
+	}
+	console.log(winners);
+}
+
+function mntv(places) {
+	console.log("Multiple non-transferable vote election");
+	intendedWinners = places;
+	initializeTally(0);
+	/* Calculate results for each candidate */
+	round = 0;
+	for (i = 0; i < votes.length; i+=1) {
+		for (j = 0; j < candidates.length; j+=1) {
+			if (votes[i][j] <= places && votes[i][j] !== 0) {
+				tally[round][j] += 1;
+			}
+		}
+	}
+	console.log(tally[round]);
+	/* Find the winners */
+	tempWinners = [];
+	for (i = 0; i < candidates.length; i+=1) {
+		tempWinners[i] = 0;
+	}
+	for (i = 0; i < places; i+=1) {
+		tempThreshold = 0; //Note: This system currently cannot handle ties for the last winning place; that should be fixed
+		for (j = 0; j < candidates.length; j+=1) {
+			if (tally[round][j] > tempThreshold && tempWinners[j] !== 1) {
+				winners[i] = j;
+				tempThreshold = tally[round][j];
+			}
+		}
+		tempWinners[winners[i]] = 1;
+		console.log(tempWinners);
 	}
 	console.log(winners);
 }

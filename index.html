@@ -19,23 +19,39 @@ Dog
 Cat
 Fish
 Mouse
+Hamster
 ~~~
-1,2,3,4
-1,3,2,4
-4,1,2,3
-4,3,1,2
-2,1,4,3
-4,3,2,1
-1,4,2,3</textarea>
+1,2,3,4,5
+5,1,4,3,2
+5,4,3,1,2
+4,3,5,2,1
+4,5,1,3,2
+1,5,2,3,4
+2,1,3,5,4
+1,5,2,4,3
+5,4,3,1,2
+5,1,4,3,2
+5,4,2,3,1
+1,3,2,4,5
+5,1,2,3,4
+1,4,2,5,3
+5,2,4,3,1
+1,5,2,3,4</textarea>
 <br>
 <button type="button" id="process">Import Data</button>
 <h2>Step 2: Select Voting System</h2>
 <select name="method" id="method">
-	<option value="fptp">First-past-the-post</option>
-	<option value="top2">Two-round runoff</option>
-	<option value="irv">Instant-runoff voting</option>
-	<option value="bucklin">Bucklin voting</option>
-	<option value="borda">Borda count</option>
+	<optgroup label="Single-winner systems">
+		<option value="fptp">Plurality voting (First-past-the-post)</option>
+		<option value="top2">Two-round system (Contingent vote)</option>
+		<option value="irv">Instant-runoff voting (Alternative vote)</option>
+		<option value="bucklin">Bucklin voting</option>
+		<option value="borda">Borda count</option>
+	</optgroup>
+	<optgroup label="Multi-winner systems">
+		<option value="sntv">Single non-transferable vote (3 winners)</option>
+		<option value="mntv">Multiple non-transferable vote (3 winners)</option>
+	</optgroup>
 </select>
 <button type="button" id="calculate">Calculate results</button>
 <h2>Results</h2>
