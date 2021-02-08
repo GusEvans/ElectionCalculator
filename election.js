@@ -47,7 +47,7 @@ function process() {
 function calculate() {
 	/* Calculate the results based on the method in the drop-down */
 	method = document.getElementById("method").value;
-	winners = []; // Note: the winners list should only be updated when a winner is CONFIRMED
+	winners = [];
 	tally = [];
 	if (method == "fptp") {
 		fptp();
@@ -62,13 +62,13 @@ function calculate() {
 		bucklin();
 	}
 	if (method == "borda") {
-		borda();
+		borda(getBordaType());
 	}
 	if (method == "sntv") {
-		sntv(3);
+		sntv(getWinnerCount());
 	}
 	if (method == "mntv") {
-		mntv(3);
+		mntv(getWinnerCount());
 	}
 	/* Display the results of the election */
 	if (winners.length == 1) {
@@ -92,6 +92,19 @@ function calculate() {
 		document.getElementById("winners").innerText = winnerString + " win the election!";
 	}
 	console.log("Winner(s): Candidate " + winners);
+}
+
+function options() {
+	/* Display options for currently-selected voting system */
+	method = document.getElementById("method").value;
+	document.getElementById("winnerCountLabel").style.display = "none";
+	document.getElementById("bordaTypeLabel").style.display = "none";
+	if (method == "sntv" || method == "mntv") {
+		document.getElementById("winnerCountLabel").style.display = "";
+	}
+	if (method == "borda") {
+		document.getElementById("bordaTypeLabel").style.display = "";
+	}
 }
 
 /* Voting Systems */
@@ -272,7 +285,6 @@ function bucklin() {
 	initializeTally(0);
 	/* Calculate first preferences */
 	firstRound();
-	console.log(topPreference);
 	/* Check for majority victory */
 	majorityCheck();
 	/* If a candidate has over half the votes, the election is over. Otherwise... */
@@ -320,15 +332,32 @@ function bucklin() {
 	console.log(tally);
 }
 
-function borda() {
+function borda(type) {
 	console.log("Borda count election");
 	intendedWinners = 1;
 	initializeTally(0);
 	/* Go through each vote and candidate, adding points to the tally */
 	for (i = 0; i < votes.length; i+=1) {
 		for (j = 0; j < candidates.length; j+=1) {
-			tally[0][j] += candidates.length + 1 - votes[i][j];
+			if (type == "a") {
+				/* First preference receives as many points as there are candidates; last preference receives 1 point. */
+				tally[0][j] += candidates.length + 1 - votes[i][j];
+				//console.log("Adding " + (candidates.length + 1 - votes[i][j]) + " point(s) to candidate " + j)
+			}
+			if (type == "b") {
+				/* First preference receives points equal to the number candidates minus 1; last preference receives 0 points. */
+				tally[0][j] += candidates.length - votes[i][j];
+				//console.log("Adding " + (candidates.length - votes[i][j]) + " point(s) to candidate " + j)
+			}
+			if (type == "c") {
+				/* First preference receives 1 point, second preferences receives 1/2, third preference receives 1/3, and so on. */
+				tally[0][j] += 1 / votes[i][j];
+				//console.log("Adding " + (1 / votes[i][j]) + " point(s) to candidate " + j)
+			}
 		}
+	}
+	for (i = 0; i < candidates.length; i+=1) {
+		tally[0][i] = Math.round(100 * tally[0][i]) / 100; //Rounded to 2 decimal places to hide ugly floating point numbers
 	}
 	console.log(tally[0]);
 	/* Find the winner(s) */
@@ -437,7 +466,24 @@ function majorityCheck() {
 	}
 }
 
+function getWinnerCount() {
+	return parseInt(document.getElementById("winnerCount").value)
+}
+
+function getBordaType() {
+	if (document.getElementById("bordaTypeA").checked == true) {
+		return "a";
+	}
+	if (document.getElementById("bordaTypeB").checked == true) {
+		return "b";
+	}
+	if (document.getElementById("bordaTypeC").checked == true) {
+		return "c";
+	}
+}
+
 /* Controls */
 
 document.getElementById("process").addEventListener("click", process);
 document.getElementById("calculate").addEventListener("click", calculate);
+document.getElementById("method").addEventListener("input", options);
