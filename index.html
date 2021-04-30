@@ -4,16 +4,24 @@
 	<meta charset="UTF-8">
 	<title>Election Calculator</title>
 	<style> * {font-family:sans-serif;} </style>
+	<link rel='shortcut icon' type='image/png' href='./favicon.png' />
 </head>
 <body>
 <h1>Election Calculator</h1>
 <h2>Step 1: Import Data</h2>
-<p>A simple example is already loaded. The names of candidates are listed at the top, and
-the votes are listed below, with a separator of "~~~" between the sections. Each vote
-lists a preference for each candidate. "1" is the first preference, "2" is the second
-preference, and so on. Make sure every vote has a number for all the candidates. Edit the
-candidates and votes as necessary, and press the "Import Data" button to confirm before
-continuing.</p>
+<p>To calculate the results of an election, there must be a list of candidates and a list
+of votes. Both lists should be entered into the box below, with a separator of "~~~"
+between the sections. An example election between pets is automatically loaded.</p>
+<p>In the candidate section, each candidate is listed on a new line. In the vote section,
+each vote contains a preference for each candidate in the order the candidates are listed
+in the candidate section. "1" indicates the first preference, "2" indicates the second
+preference, and so on. Each preference is separated by commas, and each vote is on a
+new line. For example, a vote of "2,3,1" would give first preference to the candidate
+listed third, second preference to the candidate listed first, and third preference to the
+candidate listed second. Make sure that each vote has a preference for each candidate.</p>
+<p>Edit the candidates and votes as necessary for your election, and press the "Import 
+Data" button to confirm the data before selecting an electoral system. The data in the box
+can be changed at any time, but you'll need to confirm your changes.</p>
 <textarea id="data" name="data" rows="13" cols="30">
 Dog
 Cat
@@ -39,6 +47,7 @@ Hamster
 1,5,2,3,4</textarea>
 <br>
 <button type="button" id="process">Import Data</button>
+<p id="importStatus"></p>
 <h2>Step 2: Select Electoral System</h2>
 <select name="method" id="method">
 	<optgroup label="Single-winner systems">
@@ -52,6 +61,7 @@ Hamster
 		<option value="sntv">Single non-transferable vote</option>
 		<option value="mntv">Multiple non-transferable vote</option>
 	</optgroup>
+	<optgroup label="More systems coming soon!"></optgroup>
 </select>
 <label id="winnerCountLabel" style="display: none">
 	Number of winners:
@@ -66,6 +76,7 @@ Hamster
 	<input type="radio" name="bordaType" id="bordaTypeC">
 	<label for="bordaTypeC">Fractional (Dowdall system)</label>
 </label>
+<p id="description"></p>
 <h2>Step 3: Calculate Results</h2>
 <button type="button" id="calculate">Calculate results</button>
 <p id="winners"></p>

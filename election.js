@@ -22,11 +22,14 @@ var topPreference = []; //This array is used for distributing votes correctly in
 var i;
 var j;
 
-document.getElementById("winners").innerText = "Results will appear here."
+document.getElementById("winners").innerText = "Results will appear here.";
+document.getElementById("importStatus").innerText = "Press \"Import Data\" to confirm the data in the box.";
+options();
 
 /* Button Functions */
 
 function process() {
+	document.getElementById("importStatus").innerText = "Processing...";
 	/* Separate the input data */
 	input = document.getElementById("data").value;
 	sections = input.split("\n~~~\n");
@@ -42,6 +45,7 @@ function process() {
 		}
 	}
 	console.log(votes);
+	document.getElementById("importStatus").innerText = "Data imported!";
 }
 
 function calculate() {
@@ -104,6 +108,50 @@ function options() {
 	}
 	if (method == "borda") {
 		document.getElementById("bordaTypeLabel").style.display = "";
+	}
+	/* Display description of currently-selected voting system */
+	if (method == "fptp") {
+		document.getElementById("description").innerText = "First-past-the-post or plurality voting is the most basic electoral system. "
+		+ "Every voter casts a single vote for their most preferred candidate, and the candidate with the most votes wins. "
+		+ "It may be simple, but it can easily produce results that are unrepresentative of the views of the population. "
+		+ "In this calculator, all first-preference votes are counted and all other preferences are ignored."
+	}
+	if (method == "top2") {
+		document.getElementById("description").innerText = "In a two-round system, there are 2 rounds of voting. Every voter's top preference is counted, "
+		+ "and if no-one has a majority, all candidates are eliminated except the top 2, and the election is run again with just these candidates. "
+		+ "This calculator simulates the second election by finding which of the top 2 candidates is preferenced higher by each voter, "
+		+ "which technically makes it another voting system, called the contingent vote."
+	}
+	if (method == "irv") {
+		document.getElementById("description").innerText = "Instant-runoff voting is the most popular ranked voting system, "
+		+ "and is often simply called 'preferential voting', 'ranked-choice voting', or the 'alternative vote'. In the system, everyone's first-preference votes are counted at the start. "
+		+ "If no-one has a majority, the last-placed candidate is eliminated, and all votes for that candidate are distributed to the remaining candidate "
+		+ "with the highest preference on each voter's ballot. Candidates are eliminated in each round until one reaches a majority. "
+		+ "It produces much more representative results than first-past-the-post or the two-round system, but can sometimes produce odd outcomes."
+	}
+	if (method == "bucklin") {
+		document.getElementById("description").innerText = "With Bucklin voting, an election starts by counting everyone's first-preference votes. "
+		+ "If no-one has a majority, everyone's second-preference votes are added to the first-preference votes. "
+		+ "If someone has a majority of the original number of votes after this, the candidate with the most total votes wins. "
+		+ "If not, the election goes to later preferences until a majority is reached. "
+	}
+	if (method == "borda") {
+		document.getElementById("description").innerText = "In the Borda count, each preference is worth a certain number of points, "
+		+ "and to win, a candidate must receive the most points. There are a few ways of counting these points. One method makes a first-preference vote "
+		+ "worth as many points as there are candidates, and every later preference worth 1 point less, until the last preference is worth 1 point. "
+		+ "Another method does the same thing except a first-preference is worth 1 less points than the number of candidates, and the last preference is worth 0 points. "
+		+ "Another method called the Dowdall system awards the first preference 1 point, the second preference 1/2 a point, the third 1/3, and so on. "
+		+ "The Borda count tends to place more emphasis on later preferences than other ranked voting systems."
+	}
+	if (method == "sntv") {
+		document.getElementById("description").innerText = "In the single non-transferable vote system, each voter casts a single vote, "
+		+ "and the candidates with the most votes win the election. This calculator uses the first preference on each ballot as the single vote. "
+		+ "This system does not produce proportional results, as votes can easily be split among similar candidates."
+	}
+	if (method == "mntv") {
+		document.getElementById("description").innerText = "In the multiple non-transferable vote system, each voter casts a number of votes "
+		+ "equal to the number of intended winners of the election, and the candidates with the most votes win. "
+		+ "In this calculator, a voter's top N preferences, where N is the number of intended winners, are counted as equal votes."
 	}
 }
 
@@ -435,6 +483,10 @@ function mntv(places) {
 
 /* Small Functions */
 
+function confirmImport() {
+	document.getElementById("importStatus").innerText = "Press \"Import Data\" to save your changes.";
+}
+
 function initializeTally(position) {
 	tally[position] = [];
 	for (i = 0; i < candidates.length; i+=1) {
@@ -487,3 +539,4 @@ function getBordaType() {
 document.getElementById("process").addEventListener("click", process);
 document.getElementById("calculate").addEventListener("click", calculate);
 document.getElementById("method").addEventListener("input", options);
+document.getElementById("data").addEventListener("input", confirmImport)
